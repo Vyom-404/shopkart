@@ -1,79 +1,116 @@
-# ShopKart — Customer Authentication Service
+# ShopKart
 
-Full-stack submission for Engineering Labs 01–02. The Express API provides secure
-customer authentication and the `client/` app delivers the React login-to-home flow.
+ShopKart is a small full-stack customer authentication application. The Express API stores customers in MongoDB and issues JWTs in an HTTP-only cookie. The React client provides registration, login, and a protected home page.
 
-## Tech Stack
+## Features
 
-- Node.js + Express.js
-- MongoDB + Mongoose
-- bcrypt (password hashing)
-- jsonwebtoken + cookie-parser (sessions)
-- React + React Router + Axios (customer-facing UI)
+- Register customers with a name, email, phone number, and password
+- Hash passwords with bcrypt before saving them
+- Log in and authenticate requests with a signed JWT cookie
+- View the signed-in customer's profile and log out
+- Change a password while authenticated
+- React client for the login, registration, and home flows
 
-## Project Structure (MVC)
+## Tech stack
+
+- **API:** Node.js, Express, Mongoose
+- **Database:** MongoDB
+- **Authentication:** bcrypt, JSON Web Tokens, HTTP-only cookies
+- **Client:** React, React Router, Vite, Axios
+
+## Project layout
 
 ```text
-backend/
-├── controllers/
-│   └── customer.controller.js
-├── models/
-│   └── customer.model.js
-├── routes/
-│   └── customer.routes.js
-├── middlewares/
-│   └── auth.middleware.js
-├── utils/
-│   └── generateToken.js
-├── index.js
-├── client/                 # Vite React application
-│   ├── src/pages/          # Login, Register, Home
-│   ├── src/components/     # Auth shell and navbar
-│   └── src/services/api.js
-├── package.json
-├── .env
-└── .env.example
+.
+├── controllers/            # Customer request handlers
+├── middlewares/            # JWT cookie authentication
+├── models/                 # Mongoose customer model
+├── routes/                 # Customer API routes
+├── utils/                  # JWT creation
+├── index.js                # Express app and MongoDB connection
+├── client/                 # Vite + React application
+│   └── src/
+│       ├── components/     # Shared UI and protected-route components
+│       ├── pages/          # Login, registration, and home pages
+│       └── services/       # Axios API client
+├── .env.example            # API environment template
+└── client/.env.example     # Client environment template
 ```
 
-## Setup
+## Requirements
+
+- Node.js and npm
+- A MongoDB database (local or MongoDB Atlas)
+
+## Getting started
+
+Run the API from the repository root:
 
 ```bash
-cd backend
 npm install
+cp .env.example .env
 ```
 
-Create your `.env` from `.env.example` and make sure MongoDB is running, then start:
+Set `MONGO_URI` in `.env` to your MongoDB connection string and replace `JWT_SECRET` with a long, private random value. The API reads the configuration described below and connects to MongoDB before it starts listening.
+
+Start the API in development mode:
 
 ```bash
-npm run dev   # development (nodemon)
-# or
-npm start     # production
+npm run dev
 ```
 
-### Frontend
+Or start it without nodemon:
 
-In a second terminal, start the React app:
+```bash
+npm start
+```
+
+By default the API listens on `http://localhost:3002`.
+
+In a second terminal, install and start the client:
 
 ```bash
 cd client
 npm install
+cp .env.example .env
 npm run dev
 ```
 
-The client runs at `http://localhost:5173`. Set `VITE_API_URL` in `client/.env`
-to your backend URL (the default is `http://localhost:3002`). The backend's
-`CLIENT_URL` setting (included in `.env.example`) enables credentialed requests so the
-HttpOnly login cookie is sent automatically.
+Open the Vite URL shown in the terminal (normally `http://localhost:5173`). The client sends requests with credentials enabled so the browser can store and send the authentication cookie.
 
-## API Summary
+## Environment variables
 
-| Method | Endpoint | Protected | Description |
-|--------|----------|-----------|-------------|
-| POST | `/customers/register` | No | Register a new customer |
-| POST | `/customers/login` | No | Login and set an HttpOnly JWT cookie |
-| GET | `/customers/me` | Yes | Get the authenticated customer profile |
-| POST | `/customers/logout` | Yes | Clear the auth cookie |
-| PATCH | `/customers/change-password` | Yes | Change password (bonus) |
+### API (`.env`)
+
+| Variable | Purpose | Example |
+| --- | --- | --- |
+| `PORT` | API listening port | `3002` |
+| `MONGO_URI` | MongoDB connection string | `mongodb://127.0.0.1:27017/shopkart` |
+| `JWT_SECRET` | Secret used to sign and verify JWTs | Use a long, random private value |
+| `JWT_EXPIRES_IN` | JWT lifetime (optional; defaults to `7d`) | `7d` |
+| `NODE_ENV` | Runtime mode; enables secure cookies in production | `development` |
+| `CLIENT_URL` | Allowed browser origin for credentialed CORS | `http://localhost:5173` |
+
+### Client (`client/.env`)
+
+| Variable | Purpose | Example |
+| --- | --- | --- |
+| `VITE_API_URL` | Base URL of the API | `http://localhost:3002` |
+
+Do not commit `.env` files or put production secrets in the client environment. Variables prefixed with `VITE_` are exposed to the browser.
+
+## API
+
+All customer endpoints are prefixed with `/customers`. Request and response bodies use JSON. Protected endpoints require the `token` cookie set by a successful login.
+
+| Method | Endpoint | Authentication | Description |
+| --- | --- | --- | --- |
+| `GET` | `/health` | No | Check that the API is running |
+| `POST` | `/customers/register` | No | Create a customer account |
+| `POST` | `/customers/login` | No | Authenticate and set the `token` cookie |
+| `GET` | `/customers/me` | Yes | Return the authenticated customer |
+| `POST` | `/customers/logout` | Yes | Clear the authentication cookie |
+| `PATCH` | `/customers/change-password` | Yes | Change the authenticated customer's password |
 
 ### Register
 
@@ -81,16 +118,14 @@ HttpOnly login cookie is sent automatically.
 
 ```json
 {
-  "fullName": "John Doe",
-  "email": "john@gmail.com",
-  "password": "john123",
+  "fullName": "Jordan Lee",
+  "email": "jordan@example.com",
+  "password": "example-password",
   "phone": "9876543210"
 }
 ```
 
-- Returns `400` if a field is missing or the password is shorter than 6 characters.
-- Returns `409` if the email is already registered.
-- The password is stored as a **bcrypt hash** and never returned.
+All fields are required and the password must be at least 6 characters. A successful request returns `201`; an existing email returns `409`. Passwords are hashed before storage and are never included in customer responses.
 
 ### Login
 
@@ -98,24 +133,21 @@ HttpOnly login cookie is sent automatically.
 
 ```json
 {
-  "email": "john@gmail.com",
-  "password": "john123"
+  "email": "jordan@example.com",
+  "password": "example-password"
 }
 ```
 
-- Returns `401` for invalid credentials (generic message, does not reveal which field was wrong).
-- On success, a JWT is set in an HttpOnly cookie named `token`.
+A successful request sets a JWT in an HTTP-only cookie named `token`. The cookie uses `SameSite=Lax` and is marked `Secure` when `NODE_ENV=production`. Invalid credentials return `401`.
 
-### My Profile
+### Profile, logout, and password change
 
-`GET /customers/me` — requires the auth cookie. Returns the customer without password.
+- `GET /customers/me` returns the authenticated customer's profile.
+- `POST /customers/logout` clears the `token` cookie.
+- `PATCH /customers/change-password` accepts `{ "oldPassword": "...", "newPassword": "..." }`. The new password must be at least 6 characters.
 
-### Logout
+For browser requests from a different origin, keep `CLIENT_URL` set to the client origin and ensure the client uses the correct `VITE_API_URL`. Requests must include credentials for cookie authentication.
 
-`POST /customers/logout` — clears the `token` cookie.
+## HTTP responses
 
-## Notes for TAs / Students
-
-- Test all endpoints with Postman; cookies are handled automatically by the client.
-- Passwords are hashed with bcrypt (salt rounds = 10) via a Mongoose `pre('save')` hook.
-- Protected routes read and verify the JWT from the cookie, then attach the customer to `req.user`.
+Responses include a JSON `success` flag and a message for errors. Common status codes are `400` for invalid or missing input, `401` for invalid credentials or missing/invalid authentication, `404` for an unknown route, and `409` for an already registered email.
