@@ -1,7 +1,7 @@
 # ShopKart — Customer Authentication Service
 
-Backend for Engineering Lab 01 (ShopKart). Provides secure customer registration,
-login, profile and logout using JWT stored in an **HttpOnly cookie**.
+Full-stack submission for Engineering Labs 01–02. The Express API provides secure
+customer authentication and the `client/` app delivers the React login-to-home flow.
 
 ## Tech Stack
 
@@ -9,6 +9,7 @@ login, profile and logout using JWT stored in an **HttpOnly cookie**.
 - MongoDB + Mongoose
 - bcrypt (password hashing)
 - jsonwebtoken + cookie-parser (sessions)
+- React + React Router + Axios (customer-facing UI)
 
 ## Project Structure (MVC)
 
@@ -25,6 +26,10 @@ backend/
 ├── utils/
 │   └── generateToken.js
 ├── index.js
+├── client/                 # Vite React application
+│   ├── src/pages/          # Login, Register, Home
+│   ├── src/components/     # Auth shell and navbar
+│   └── src/services/api.js
 ├── package.json
 ├── .env
 └── .env.example
@@ -44,6 +49,21 @@ npm run dev   # development (nodemon)
 # or
 npm start     # production
 ```
+
+### Frontend
+
+In a second terminal, start the React app:
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+The client runs at `http://localhost:5173`. Set `VITE_API_URL` in `client/.env`
+to your backend URL (the default is `http://localhost:3002`). The backend's
+`CLIENT_URL` setting (included in `.env.example`) enables credentialed requests so the
+HttpOnly login cookie is sent automatically.
 
 ## API Summary
 
