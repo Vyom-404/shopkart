@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 
 const customerRoutes = require('./routes/customer.routes');
+const productRoutes = require('./routes/product.routes');
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.get('/health', (req, res) => {
   return res.json({ success: true, message: 'ShopKart API is running' });
 });
 app.use('/customers', customerRoutes);
+app.use('/products', productRoutes);
 
 // 404 handler
 app.use((req, res) => {
