@@ -18,6 +18,7 @@ export default function Navbar({ customer }) {
       <Link className="brand" to="/home"><span className="brand-mark">S</span>shopkart</Link>
       <div className="nav-right">
         <Link className="nav-products" to="/products">Products</Link>
+        <Link className="nav-products" to="/wishlist">Wishlist</Link>
         <span className="hello">Hello, {customer.fullName.split(' ')[0]}</span>
         <span className="avatar" aria-label={`${customer.fullName}'s profile`}>{initials}</span>
         <button className="logout" onClick={handleLogout}>Log out <span aria-hidden="true">↗</span></button>

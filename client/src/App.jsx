@@ -6,6 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Products from './pages/Products';
 import ProductDetails from './pages/ProductDetails';
 import GuestRoute from './components/GuestRoute';
+import Wishlist from './pages/Wishlist';
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/products" element={<Products />} />
         <Route path="/products/:id" element={<ProductDetails />} />
+        <Route path="/wishlist" element={<Wishlist />} />
       </Route>
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
