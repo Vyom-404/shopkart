@@ -3,7 +3,7 @@ import { useOutletContext } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import ProductCard from '../components/ProductCard';
 import SearchBar from '../components/SearchBar';
-import { getProducts } from '../services/api';
+import { getProducts, getWishlist } from '../services/api';
 
 export default function Products() {
   const { customer } = useOutletContext();
@@ -12,6 +12,19 @@ export default function Products() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [wishlistIds, setWishlistIds] = useState([]);
+
+  useEffect(() => {
+    let active = true;
+    getWishlist()
+      .then(({ data }) => { if (active) setWishlistIds(data.wishlist.map((product) => product._id)); })
+      .catch(() => {});
+    return () => { active = false; };
+  }, []);
+
+  function markWishlisted(productId) {
+    setWishlistIds((current) => current.includes(productId) ? current : [...current, productId]);
+  }
 
   useEffect(() => {
     let active = true;
@@ -36,6 +49,6 @@ export default function Products() {
     {loading ? <p className="state-message" role="status">Loading products...</p>
       : error ? <p className="state-message form-error" role="alert">Something went wrong while loading products.</p>
         : products.length === 0 ? <p className="state-message">No products found.</p>
-          : <section className="product-grid" aria-label="Products">{products.map((product) => <ProductCard key={product._id} product={product} />)}</section>}
+          : <section className="product-grid" aria-label="Products">{products.map((product) => <ProductCard key={product._id} product={product} isWishlisted={wishlistIds.includes(product._id)} onWishlistAdded={markWishlisted} />)}</section>}
   </main></div>;
 }
