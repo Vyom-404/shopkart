@@ -65,4 +65,43 @@ const removeFromWishlist = async (req, res) => {
   }
 };
 
-module.exports = { addToWishlist, getWishlist, removeFromWishlist };
+const toggleWishlist = async (req, res) => {
+  const { productId } = req.params;
+  if (!validateProductId(productId, res)) return;
+
+  try {
+    const removed = await Customer.updateOne(
+      { _id: req.user._id, wishlist: productId },
+      { $pull: { wishlist: productId } }
+    );
+    if (removed.modifiedCount > 0) {
+      return res.json({ success: true, saved: false, message: 'Product removed from wishlist' });
+    }
+
+    const productExists = await Product.exists({ _id: productId });
+    if (!productExists) return res.status(404).json({ success: false, message: 'Product not found' });
+
+    const added = await Customer.updateOne(
+      { _id: req.user._id, wishlist: { $ne: productId } },
+      { $addToSet: { wishlist: productId } }
+    );
+    if (added.modifiedCount > 0) {
+      return res.json({ success: true, saved: true, message: 'Product added to wishlist' });
+    }
+
+    // If another toggle added it between the remove and add attempts, this
+    // request is the next toggle and removes it again.
+    const concurrentRemove = await Customer.updateOne(
+      { _id: req.user._id, wishlist: productId },
+      { $pull: { wishlist: productId } }
+    );
+    if (concurrentRemove.modifiedCount > 0) {
+      return res.json({ success: true, saved: false, message: 'Product removed from wishlist' });
+    }
+    return res.status(401).json({ success: false, message: 'Not authorized' });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Unable to update wishlist' });
+  }
+};
+
+module.exports = { addToWishlist, getWishlist, removeFromWishlist, toggleWishlist };
