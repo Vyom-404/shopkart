@@ -24,8 +24,10 @@ export default function Products() {
     return () => { active = false; };
   }, []);
 
-  function markWishlisted(productId) {
-    setWishlistIds((current) => current.includes(productId) ? current : [...current, productId]);
+  function markWishlisted(productId, saved) {
+    setWishlistIds((current) => saved
+      ? (current.includes(productId) ? current : [...current, productId])
+      : current.filter((id) => id !== productId));
   }
 
   useEffect(() => {

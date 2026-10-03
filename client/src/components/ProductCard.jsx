@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { addToWishlist } from '../services/api';
+import { toggleWishlist } from '../services/api';
 
 const formatPrice = (price) => `₹${Number(price).toLocaleString('en-IN')}`;
 
@@ -11,21 +11,16 @@ export default function ProductCard({ product, isWishlisted = false, onWishlistA
 
   useEffect(() => setSaved(isWishlisted), [isWishlisted]);
 
-  async function handleAddToWishlist() {
-    if (saving || saved) return;
+  async function handleToggleWishlist() {
+    if (saving) return;
     setSaving(true);
     setWishlistError('');
     try {
-      await addToWishlist(product._id);
-      setSaved(true);
-      onWishlistAdded?.(product._id);
-    } catch (error) {
-      if (error.response?.status === 409) {
-        setSaved(true);
-        onWishlistAdded?.(product._id);
-      } else {
-        setWishlistError('Unable to save product. Please try again.');
-      }
+      const { data } = await toggleWishlist(product._id);
+      setSaved(data.saved);
+      onWishlistAdded?.(product._id, data.saved);
+    } catch {
+      setWishlistError('Unable to update wishlist. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -42,8 +37,8 @@ export default function ProductCard({ product, isWishlisted = false, onWishlistA
         <strong className="product-price">{formatPrice(product.price)}</strong>
         <p className="stock-status">{product.stock > 0 ? `${product.stock} units left` : 'Out of stock'}</p>
         <Link className="product-link" to={`/products/${product._id}`}>View Details <span aria-hidden="true">→</span></Link>
-        <button className="wishlist-action" type="button" onClick={handleAddToWishlist} disabled={saving || saved}>
-          {saving ? '⏳ Saving...' : saved ? '♥ Added to Wishlist' : '♡ Add to Wishlist'}
+        <button className="wishlist-action" type="button" onClick={handleToggleWishlist} disabled={saving}>
+          {saving ? '⏳ Saving...' : saved ? '♥ Remove from Wishlist' : '♡ Add to Wishlist'}
         </button>
         {wishlistError && <p className="wishlist-action-error" role="alert">{wishlistError}</p>}
       </div>
