@@ -17,7 +17,9 @@ export default function Products() {
   useEffect(() => {
     let active = true;
     getWishlist()
-      .then(({ data }) => { if (active) setWishlistIds(data.wishlist.map((product) => product._id)); })
+      .then(({ data }) => {
+        if (active) setWishlistIds((current) => [...new Set([...current, ...data.wishlist.map((product) => product._id)])]);
+      })
       .catch(() => {});
     return () => { active = false; };
   }, []);
