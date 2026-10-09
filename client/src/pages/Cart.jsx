@@ -1,0 +1,41 @@
+import { Link, useOutletContext } from 'react-router-dom';
+import CartItem from '../components/CartItem';
+import Navbar from '../components/Navbar';
+import { useCart } from '../context/CartContext';
+
+const formatPrice = (price) => `₹${Number(price).toLocaleString('en-IN')}`;
+
+export default function Cart() {
+  const { customer } = useOutletContext();
+  const {
+    cartItems,
+    cartLoading,
+    cartError,
+    totalItems,
+    subtotal,
+    refreshCart,
+    updateQuantity,
+    removeFromCart,
+    isProductPending
+  } = useCart();
+
+  return <div className="home-page"><Navbar customer={customer} /><main className="products-content cart-page">
+    <p className="eyebrow dark">READY WHEN YOU ARE</p>
+    <h1 className="page-title">My Cart</h1>
+    {cartLoading ? <p className="state-message" role="status">Loading your cart...</p>
+      : cartError ? <section className="cart-state-error" role="alert"><p>Unable to load your cart.</p><button className="dark-button" type="button" onClick={refreshCart}>Try Again <span>↻</span></button></section>
+        : cartItems.length === 0 ? <section className="cart-empty"><div aria-hidden="true">🛒</div><h2>Your cart is empty</h2><p>Looks like you haven't added anything yet.</p><Link className="dark-button" to="/products">Browse Products <span>→</span></Link></section>
+          : <div className="cart-layout">
+            <section className="cart-items-list" aria-label="Cart items">
+              {cartItems.map((item) => <CartItem key={item.product._id} item={item} pending={isProductPending(item.product._id)} onQuantityChange={updateQuantity} onRemove={removeFromCart} />)}
+            </section>
+            <aside className="order-summary">
+              <p className="eyebrow dark">ORDER SUMMARY</p>
+              <h2>Summary</h2>
+              <div className="summary-row"><span>Items</span><span>{totalItems}</span></div>
+              <div className="summary-row summary-total"><strong>Subtotal</strong><strong>{formatPrice(subtotal)}</strong></div>
+              <button className="dark-button checkout-button" type="button" disabled>Proceed to Checkout <span>→</span></button>
+            </aside>
+          </div>}
+  </main></div>;
+}
