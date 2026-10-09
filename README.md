@@ -1,6 +1,6 @@
-# ShopKart
+# Arova
 
-ShopKart is a full-stack shopping application with customer authentication, a MongoDB product catalogue, a persistent wishlist and cart, Razorpay Test Mode checkout, and order history. The Express API uses Mongoose and JWTs stored in HTTP-only cookies. The React client uses React Router, Axios, and Context API to browse, save, add to cart, and check out.
+Arova is a full-stack shopping application with customer authentication, a MongoDB product catalogue, a persistent wishlist and cart, Razorpay Test Mode checkout, and order history. The Express API uses Mongoose and JWTs stored in HTTP-only cookies. The React client uses React Router, Axios, and Context API to browse, save, add to cart, and check out. The Arova monogram is shared by the site branding, empty states, and favicon.
 
 ## Features
 
@@ -12,7 +12,9 @@ ShopKart is a full-stack shopping application with customer authentication, a Mo
 - Add products to a persistent cart and increase quantities for existing items
 - Update or remove cart items with stock validation
 - Share cart state through React Context; derive item count and subtotal from cart data
+- Show an itemized cart summary and progress toward complimentary delivery over ₹1,999
 - Checkout with shipping validation and server-side price/stock verification
+- Buy Now asks for a quantity and opens checkout directly, without changing the customer's cart
 - Razorpay Test Mode order creation and server-side payment-signature verification
 - Persisted order snapshots, confirmation details, and customer-specific order history
 - Development-only sequential order status progression for the Lab 6 bonus
@@ -37,8 +39,10 @@ ShopKart is a full-stack shopping application with customer authentication, a Mo
 ├── utils/                  # JWT creation
 ├── index.js                # Express app and MongoDB connection
 ├── client/                 # Vite + React application
+│   ├── public/             # Arova favicon
 │   └── src/
-│       ├── components/     # Navbar, product/cart cards, and route guards
+│       ├── assets/         # Arova brand mark
+│       ├── components/     # Navbar, product/cart cards, brand mark, and route guards
 │       ├── context/        # Shared cart state
 │       ├── pages/          # Store, checkout, order history, and account pages
 │       └── services/       # Axios API client and request helpers
@@ -206,12 +210,12 @@ The frontend `CartContext` loads the cart once for the protected application and
 
 ### Order and payment endpoints
 
-All order endpoints are protected and identify the customer from the JWT cookie. Checkout sends only shipping details; the backend reloads the authenticated customer's cart, obtains current product prices and stock, snapshots item details, and calculates the INR total itself. Razorpay receives the amount in paise. The backend verifies Razorpay's HMAC signature before marking the order `PAID` / `PLACED` and emptying the separate Cart document. The Razorpay Key Secret is never exposed to React.
+All order endpoints are protected and identify the customer from the JWT cookie. Regular cart checkout sends shipping details; the backend reloads the authenticated customer's cart, obtains current product prices and stock, snapshots item details, and calculates the INR total itself. Buy Now sends a product ID and selected quantity with the shipping details; the backend validates stock and gets the current product price from MongoDB. Razorpay receives the amount in paise. The backend verifies Razorpay's HMAC signature before marking the order `PAID` / `PLACED`. A regular cart order clears the separate Cart document after successful verification; a Buy Now order leaves it unchanged. The Razorpay Key Secret is never exposed to React.
 
 | Method | Endpoint | Description |
 | --- | --- | --- |
-| `POST` | `/orders/create-payment-order` | Validate shipping/cart/stock, persist a pending order snapshot, and create a Razorpay Test Mode Order |
-| `POST` | `/orders/verify-payment` | Verify the signature, mark the order paid/placed, and clear the customer's cart |
+| `POST` | `/orders/create-payment-order` | Validate shipping and either cart contents or Buy Now product/quantity; persist an order snapshot and create a Razorpay Test Mode Order |
+| `POST` | `/orders/verify-payment` | Verify the signature and mark the order paid/placed; clear the cart only for regular cart checkout |
 | `GET` | `/orders` | List only the authenticated customer's orders, newest first |
 | `GET` | `/orders/:id` | Fetch one order only if it belongs to the authenticated customer |
 | `PATCH` | `/orders/:id/status` | Development-only bonus: advance an owned order one step through CONFIRMED, SHIPPED, and DELIVERED |
@@ -234,7 +238,7 @@ The checkout UI is at `/checkout`, confirmation/details at `/order-success/:id` 
 | `/orders` | Order history | Signed-in customers |
 | `/orders/:id` | One order's snapshot and shipping details | Signed-in customers; order owner only |
 
-Product cards can toggle wishlist status and add products to the cart without a page refresh. Wishlist and cart changes are reflected across the app through backend responses and shared cart state. Catalogue, wishlist, and cart pages display loading, error, and empty states.
+Product cards can toggle wishlist status and add products to the cart without a page refresh. Product details also offer Buy Now, which asks for a quantity and proceeds to checkout without changing the cart. Wishlist and cart changes are reflected across the app through backend responses and shared cart state. The cart summary itemizes prices and shows progress toward complimentary delivery over ₹1,999. Catalogue, wishlist, and cart pages display loading, error, and empty states.
 
 ## HTTP responses
 
