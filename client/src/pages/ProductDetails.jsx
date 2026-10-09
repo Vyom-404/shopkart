@@ -3,6 +3,7 @@ import { Link, useNavigate, useOutletContext, useParams } from 'react-router-dom
 import Navbar from '../components/Navbar';
 import { getProduct, getWishlist, toggleWishlist } from '../services/api';
 import { useCart } from '../context/CartContext';
+import BrandMark from '../components/BrandMark';
 
 const formatPrice = (price) => `₹${Number(price).toLocaleString('en-IN')}`;
 
@@ -107,7 +108,7 @@ export default function ProductDetails() {
             <div className="detail-actions">
               <button className="dark-button detail-cart-button" type="button" disabled={adding || stockLimitReached} onClick={handleAddToCart}>{adding ? 'Adding...' : stockLimitReached ? (product.stock <= 0 ? 'Out of Stock' : 'Stock Limit Reached') : inCart ? `Add Another · ${cartQuantity} in cart` : 'Add to Cart'} <span>→</span></button>
               <button className="dark-button buy-now-button" type="button" disabled={product.stock < 1} onClick={handleBuyNow}>Buy Now <span>→</span></button>
-              <button className={`detail-wishlist-button${saved ? ' is-saved' : ''}`} type="button" onClick={handleToggleWishlist} disabled={wishlistSaving} aria-label={saved ? 'Remove from wishlist' : 'Add to wishlist'} aria-pressed={saved}>{wishlistSaving ? 'Saving…' : <><span aria-hidden="true">{saved ? '♥' : '♡'}</span> {saved ? 'Saved to Wishlist' : 'Add to Wishlist'}</>}</button>
+              <button className={`detail-wishlist-button${saved ? ' is-saved' : ''}`} type="button" onClick={handleToggleWishlist} disabled={wishlistSaving} aria-label={saved ? 'Remove from wishlist' : 'Add to wishlist'} aria-pressed={saved}>{wishlistSaving ? 'Saving…' : <><BrandMark className="wishlist-brand-icon" decorative /> {saved ? 'Saved to Wishlist' : 'Add to Wishlist'}</>}</button>
             </div>
             {cartActionError && <p className="form-error" role="alert">{cartActionError}</p>}
             {wishlistError && <p className="form-error" role="alert">{wishlistError}</p>}

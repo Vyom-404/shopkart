@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { advanceOrderStatus, getOrders } from '../services/api';
+import BrandMark from '../components/BrandMark';
 
 const formatPrice = price => `₹${Number(price).toLocaleString('en-IN')}`;
 const formatDate = date => new Date(date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -47,7 +48,7 @@ export default function Orders() {
     <p className="eyebrow dark">THE STORY SO FAR</p><h1 className="page-title">My Orders</h1>
     {loading ? <p className="state-message" role="status">Loading your orders...</p>
       : error ? <section className="orders-empty" role="alert"><h2>We couldn't load your orders.</h2><p>Please check your connection and try again.</p><button className="dark-button" type="button" onClick={loadOrders}>Try Again <span>↻</span></button></section>
-        : orders.length === 0 ? <section className="orders-empty"><div aria-hidden="true">✳</div><h2>No orders yet</h2><p>Your purchases will find a home here. Start with something you love.</p><Link className="dark-button" to="/products">Start Shopping <span>→</span></Link></section>
+        : orders.length === 0 ? <section className="orders-empty"><BrandMark className="empty-brand-mark" decorative /><h2>No orders yet</h2><p>Your purchases will find a home here. Start with something you love.</p><Link className="dark-button" to="/products">Start Shopping <span>→</span></Link></section>
           : <section className="orders-list" aria-label="Your orders">{orders.map(order => <article className="order-card" key={order._id}>
             <header className="order-card-header"><div><p className="eyebrow dark">ORDER #{order._id.slice(-8).toUpperCase()}</p><time dateTime={order.createdAt}>{formatDate(order.createdAt)}</time></div><span className={`order-status status-${order.status.toLowerCase().replaceAll('_', '-')}`}>{order.status.replaceAll('_', ' ')}</span></header>
             <div className="order-card-items">{order.items.map((item, index) => <div className="order-list-item" key={`${item.product}-${index}`}>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toggleWishlist } from '../services/api';
 import { useCart } from '../context/CartContext';
+import BrandMark from './BrandMark';
 
 const formatPrice = (price) => `₹${Number(price).toLocaleString('en-IN')}`;
 
@@ -41,12 +42,12 @@ export default function ProductCard({ product, isWishlisted = false, onWishlistA
           <span className="image-view-mark" aria-hidden="true">↗</span>
         </Link>
         <button className={`wishlist-action${saved ? ' is-saved' : ''}`} type="button" onClick={handleToggleWishlist} disabled={wishlistSaving} aria-label={wishlistSaving ? 'Saving to wishlist' : saved ? 'Remove from wishlist' : 'Add to wishlist'} aria-pressed={saved} title={saved ? 'Remove from wishlist' : 'Add to wishlist'}>
-          {wishlistSaving ? <span className="heart-saving">···</span> : saved ? '♥' : '♡'}
+          {wishlistSaving ? <span className="heart-saving">···</span> : <BrandMark className="wishlist-brand-icon" decorative />}
         </button>
         <span className="media-category">{product.category}</span>
       </div>
       <div className="product-card-content">
-        <div className="product-title-row"><h2>{product.name}</h2><span className="product-index" aria-hidden="true">✳</span></div>
+        <div className="product-title-row"><h2>{product.name}</h2><BrandMark className="product-index" decorative /></div>
         <div className="product-price-row"><strong className="product-price">{formatPrice(product.price)}</strong><span className={`stock-status${product.stock < 1 ? ' sold-out' : ''}`}><i />{product.stock > 0 ? `${product.stock} in stock` : 'Sold out'}</span></div>
         <Link className="product-link" to={`/products/${product._id}`}>Explore piece <span aria-hidden="true">↗</span></Link>
         <button className="cart-action" type="button" disabled={adding || stockLimitReached} onClick={async () => {

@@ -3,6 +3,7 @@ import { Link, useOutletContext } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import WishlistCard from '../components/WishlistCard';
 import { getWishlist, removeFromWishlist } from '../services/api';
+import BrandMark from '../components/BrandMark';
 
 export default function Wishlist() {
   const { customer } = useOutletContext();
@@ -43,7 +44,7 @@ export default function Wishlist() {
     {!loading && !error && <p className="wishlist-count">{wishlist.length} {wishlist.length === 1 ? 'product' : 'products'} saved</p>}
     {loading ? <p className="state-message" role="status">Loading your wishlist...</p>
       : error ? <section className="wishlist-error" role="alert"><h2>Something went wrong.</h2><p>We couldn't load your wishlist.</p><button className="dark-button" type="button" onClick={() => setRetry((value) => value + 1)}>Try Again <span>↻</span></button></section>
-        : wishlist.length === 0 ? <section className="wishlist-empty"><div aria-hidden="true" className="empty-mark">♡</div><h2>Your wishlist is empty</h2><p>Save products you love and find them here later.</p><Link className="dark-button" to="/products">Browse Products <span>→</span></Link></section>
+        : wishlist.length === 0 ? <section className="wishlist-empty"><BrandMark className="empty-brand-mark" decorative /><h2>Your wishlist is empty</h2><p>Save products you love and find them here later.</p><Link className="dark-button" to="/products">Browse Products <span>→</span></Link></section>
           : <>{removeError && <p className="form-error" role="alert">{removeError}</p>}<section className="product-grid" aria-label="Wishlist products">{wishlist.map((product) => <WishlistCard key={product._id} product={product} removing={removingId === product._id} onRemove={handleRemove} />)}</section></>}
   </main></div>;
 }

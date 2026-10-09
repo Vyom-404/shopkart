@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { getWishlist } from '../services/api';
+import BrandMark from './BrandMark';
 
 export default function Navbar() {
   const { totalItems } = useCart();
@@ -26,7 +27,7 @@ export default function Navbar() {
     <>
       <div className="announcement-bar"><span>COMPLIMENTARY DELIVERY</span><span className="announcement-divider">—</span><span>ON ORDERS OVER ₹1,999</span></div>
       <header className="navbar">
-        <Link className="brand" to="/home"><span className="brand-mark" aria-hidden="true">A</span><span>arova<span className="brand-period">.</span></span></Link>
+        <Link className="brand" to="/home"><BrandMark className="brand-mark" decorative /><span>arova<span className="brand-period">.</span></span></Link>
         <nav className="nav-links" aria-label="Main navigation">
           <NavLink to="/home" end className={({ isActive }) => `nav-products${isActive ? ' active' : ''}`}>Home</NavLink>
           <NavLink to="/products" className={({ isActive }) => `nav-products${isActive ? ' active' : ''}`}>Collection</NavLink>

@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom';
+import BrandMark from './BrandMark';
 
 export default function AuthShell({ children, title, intro, alternate }) {
   return (
     <main className="auth-page">
       <section className="auth-aside">
-        <Link className="brand light-brand" to="/login"><span className="brand-mark">A</span>arova</Link>
+        <Link className="brand light-brand" to="/login"><BrandMark className="brand-mark" decorative />arova</Link>
         <div className="aside-copy">
           <p className="eyebrow">THE GOOD THINGS, CLOSER</p>
           <h1>Everyday finds,<br /><em>beautifully</em> chosen.</h1>

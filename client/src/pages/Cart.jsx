@@ -2,6 +2,7 @@ import { Link, useOutletContext } from 'react-router-dom';
 import CartItem from '../components/CartItem';
 import Navbar from '../components/Navbar';
 import { useCart } from '../context/CartContext';
+import BrandMark from '../components/BrandMark';
 
 const formatPrice = (price) => `₹${Number(price).toLocaleString('en-IN')}`;
 const FREE_DELIVERY_THRESHOLD = 2000;
@@ -27,7 +28,7 @@ export default function Cart() {
     <header className="cart-page-heading"><div><p className="eyebrow">YOUR SELECTION</p><h1 className="page-title">Shopping bag<span>.</span></h1></div>{!cartLoading && !cartError && cartItems.length > 0 && <p>{totalItems} {totalItems === 1 ? 'piece' : 'pieces'} in your bag</p>}</header>
     {cartLoading ? <p className="state-message" role="status">Loading your cart...</p>
       : cartError ? <section className="cart-state-error" role="alert"><p>Unable to load your cart.</p><button className="dark-button" type="button" onClick={refreshCart}>Try Again <span>↻</span></button></section>
-        : cartItems.length === 0 ? <section className="cart-empty"><div aria-hidden="true" className="empty-mark">01</div><h2>Your cart is empty</h2><p>Looks like you haven't added anything yet.</p><Link className="dark-button" to="/products">Browse Products <span>→</span></Link></section>
+        : cartItems.length === 0 ? <section className="cart-empty"><BrandMark className="empty-brand-mark" decorative /><h2>Your cart is empty</h2><p>Looks like you haven't added anything yet.</p><Link className="dark-button" to="/products">Browse Products <span>→</span></Link></section>
           : <div className="cart-layout">
             <section className="cart-items-list" aria-label="Cart items">
               {cartItems.map((item) => <CartItem key={item.product._id} item={item} pending={isProductPending(item.product._id)} onQuantityChange={updateQuantity} onRemove={removeFromCart} />)}
@@ -44,7 +45,7 @@ export default function Cart() {
               <div className="summary-row"><span>Items in your bag</span><span>{totalItems}</span></div>
               <div className="summary-row summary-total"><strong>Subtotal</strong><strong>{formatPrice(subtotal)}</strong></div>
               <div className="delivery-perk">
-                <div className="delivery-perk-copy"><span className="delivery-perk-mark" aria-hidden="true">✳</span><span><strong>{deliveryUnlocked ? 'Complimentary delivery unlocked' : 'Complimentary delivery'}</strong><small>{deliveryUnlocked ? 'Your order qualifies.' : `Add ${formatPrice(deliveryRemaining)} more to qualify.`}</small></span></div>
+                <div className="delivery-perk-copy"><BrandMark className="delivery-perk-mark" decorative /><span><strong>{deliveryUnlocked ? 'Complimentary delivery unlocked' : 'Complimentary delivery'}</strong><small>{deliveryUnlocked ? 'Your order qualifies.' : `Add ${formatPrice(deliveryRemaining)} more to qualify.`}</small></span></div>
                 <div className="delivery-progress" role="progressbar" aria-label="Progress toward complimentary delivery" aria-valuemin="0" aria-valuemax={FREE_DELIVERY_THRESHOLD} aria-valuenow={Math.min(subtotal, FREE_DELIVERY_THRESHOLD)}><span style={{ width: `${deliveryProgress}%` }} /></div>
               </div>
               <p className="delivery-note">Any delivery charges are confirmed at checkout.</p>
