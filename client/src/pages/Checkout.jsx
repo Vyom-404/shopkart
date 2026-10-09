@@ -136,7 +136,7 @@ export default function Checkout() {
     <header className="checkout-heading"><div><p className="eyebrow">A FEW FINAL DETAILS</p><h1 className="page-title">Checkout<span>.</span></h1></div><div className="checkout-progress" aria-label="Checkout steps"><span className="current"><i>01</i> Delivery</span><span><i>02</i> Review</span><span><i>03</i> Payment</span></div></header>
     {cartLoading ? <p className="state-message" role="status">Loading your cart...</p>
       : cartError ? <section className="cart-state-error" role="alert"><p>Unable to load your cart.</p><button className="dark-button" type="button" onClick={refreshCart}>Try Again <span>↻</span></button></section>
-        : cartItems.length === 0 ? <section className="cart-empty"><div aria-hidden="true">🛒</div><h2>Your cart is empty</h2><p>Add something you love before checking out.</p><Link className="dark-button" to="/products">Browse Products <span>→</span></Link></section>
+        : cartItems.length === 0 ? <section className="cart-empty"><div aria-hidden="true" className="empty-mark">01</div><h2>Your cart is empty</h2><p>Add something you love before checking out.</p><Link className="dark-button" to="/products">Browse Products <span>→</span></Link></section>
           : <form className="checkout-layout" onSubmit={handlePlaceOrder} noValidate>
             <section className="shipping-panel">
               <p className="eyebrow dark">DELIVERY DETAILS</p><h2>Where should we send it?</h2>
