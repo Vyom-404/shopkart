@@ -1,6 +1,6 @@
 # ShopKart
 
-ShopKart is a full-stack shopping application with customer authentication, a MongoDB product catalogue, and a persistent wishlist. The Express API uses Mongoose and JWTs stored in HTTP-only cookies. The React client uses React Router and Axios to browse and save products.
+ShopKart is a full-stack shopping application with customer authentication, a MongoDB product catalogue, a persistent wishlist, and a shopping cart. The Express API uses Mongoose and JWTs stored in HTTP-only cookies. The React client uses React Router, Axios, and Context API to browse, save, and add products to a cart.
 
 ## Features
 
@@ -9,30 +9,33 @@ ShopKart is a full-stack shopping application with customer authentication, a Mo
 - Browse products from MongoDB, search by name, filter by category, and sort by price
 - View product details
 - Add and remove products from a customer-specific wishlist
-- Toggle wishlist membership and show the backend wishlist count in the Navbar
-- Loading, error, and empty states for catalogue and wishlist pages
+- Add products to a persistent cart and increase quantities for existing items
+- Update or remove cart items with stock validation
+- Share cart state through React Context; derive item count and subtotal from cart data
+- Loading, error, and empty states for catalogue, wishlist, and cart pages
 
 ## Tech stack
 
 - **API:** Node.js, Express, Mongoose
 - **Database:** MongoDB
 - **Authentication:** bcrypt, JSON Web Tokens, HTTP-only cookies
-- **Client:** React, React Router, Vite, Axios
+- **Client:** React, React Router, Context API, Vite, Axios
 
 ## Project layout
 
 ```text
 .
-├── controllers/            # Customer, product, and wishlist request handlers
+├── controllers/            # Customer, product, wishlist, and cart request handlers
 ├── middlewares/            # JWT cookie authentication
-├── models/                 # Customer and product schemas
-├── routes/                 # Customer, product, and wishlist routes
+├── models/                 # Customer, product, and separate Cart schemas
+├── routes/                 # Customer, product, wishlist, and cart routes
 ├── utils/                  # JWT creation
 ├── index.js                # Express app and MongoDB connection
 ├── client/                 # Vite + React application
 │   └── src/
-│       ├── components/     # Navbar, product cards, and route guards
-│       ├── pages/          # Login, register, home, products, details, wishlist
+│       ├── components/     # Navbar, product/cart cards, and route guards
+│       ├── context/        # Shared cart state
+│       ├── pages/          # Login, register, home, products, details, wishlist, cart
 │       └── services/       # Axios API client and request helpers
 ├── scripts/seed-products.js # Optional sample product seeder
 ├── .env.example            # API environment template
@@ -170,6 +173,21 @@ The Customer document stores an array of Product ObjectId references. `GET /wish
 
 Common wishlist errors are `401` for missing/invalid authentication, `400` for an invalid product ID, `404` for a missing product or unsaved product removal, and `409` when adding a duplicate.
 
+### Cart endpoints
+
+All cart endpoints are protected. Cart data lives in a separate `Cart` collection, linked to the authenticated Customer. Each cart item stores a Product ObjectId reference and a quantity; product details are populated from the Product collection. The Customer schema does not store cart data.
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `POST` | `/cart/:productId` | Add a product or increment its quantity |
+| `GET` | `/cart` | Return the authenticated customer's populated cart |
+| `PATCH` | `/cart/:productId` | Set a cart item's quantity using `{ "quantity": 3 }` |
+| `DELETE` | `/cart/:productId` | Remove an item and return the updated cart |
+
+Adding the same product again increments its quantity instead of creating another row. Add and quantity updates are rejected with `400` if the requested quantity exceeds current stock. Invalid product IDs return `400`; missing products or cart items return `404`. Product prices are populated from the current Product document, not copied into the Cart.
+
+The frontend `CartContext` loads the cart once for the protected application and shares it with product cards, the Navbar, and the Cart page. The Navbar count is the total quantity of all cart items. Subtotal is derived as the sum of each current product price multiplied by its quantity; neither value is stored separately in MongoDB.
+
 ## Frontend routes
 
 | Route | Page | Access |
@@ -180,8 +198,9 @@ Common wishlist errors are `401` for missing/invalid authentication, `400` for a
 | `/products` | Product catalogue, search, and category filter | Signed-in customers |
 | `/products/:id` | Product details | Signed-in customers |
 | `/wishlist` | Saved products | Signed-in customers |
+| `/cart` | Cart quantities and order summary | Signed-in customers |
 
-The Navbar fetches the wishlist count from `GET /wishlist` and refreshes it after wishlist changes. Product cards toggle save status without a page refresh. Wishlist and catalogue pages display loading, error, and empty states.
+Product cards can toggle wishlist status and add products to the cart without a page refresh. Wishlist and cart changes are reflected across the app through backend responses and shared cart state. Catalogue, wishlist, and cart pages display loading, error, and empty states.
 
 ## HTTP responses
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import api from '../services/api';
+import { CartProvider } from '../context/CartContext';
 
 /**
  * Route-level authentication guard. It checks the HttpOnly cookie with the API
@@ -32,5 +33,5 @@ export default function ProtectedRoute() {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
-  return <Outlet context={{ customer: state.customer }} />;
+  return <CartProvider><Outlet context={{ customer: state.customer }} /></CartProvider>;
 }
