@@ -1,6 +1,6 @@
 # ShopKart
 
-ShopKart is a full-stack shopping application with customer authentication, a MongoDB product catalogue, a persistent wishlist, and a shopping cart. The Express API uses Mongoose and JWTs stored in HTTP-only cookies. The React client uses React Router, Axios, and Context API to browse, save, and add products to a cart.
+ShopKart is a full-stack shopping application with customer authentication, a MongoDB product catalogue, a persistent wishlist and cart, Razorpay Test Mode checkout, and order history. The Express API uses Mongoose and JWTs stored in HTTP-only cookies. The React client uses React Router, Axios, and Context API to browse, save, add to cart, and check out.
 
 ## Features
 
@@ -12,7 +12,11 @@ ShopKart is a full-stack shopping application with customer authentication, a Mo
 - Add products to a persistent cart and increase quantities for existing items
 - Update or remove cart items with stock validation
 - Share cart state through React Context; derive item count and subtotal from cart data
-- Loading, error, and empty states for catalogue, wishlist, and cart pages
+- Checkout with shipping validation and server-side price/stock verification
+- Razorpay Test Mode order creation and server-side payment-signature verification
+- Persisted order snapshots, confirmation details, and customer-specific order history
+- Development-only sequential order status progression for the Lab 6 bonus
+- Loading, error, and empty states across catalogue, cart, checkout, wishlist, and orders
 
 ## Tech stack
 
@@ -25,17 +29,18 @@ ShopKart is a full-stack shopping application with customer authentication, a Mo
 
 ```text
 .
-├── controllers/            # Customer, product, wishlist, and cart request handlers
+├── config/                 # Razorpay server configuration
+├── controllers/            # Customer, product, wishlist, cart, and order handlers
 ├── middlewares/            # JWT cookie authentication
-├── models/                 # Customer, product, and separate Cart schemas
-├── routes/                 # Customer, product, wishlist, and cart routes
+├── models/                 # Customer, product, separate Cart, and Order schemas
+├── routes/                 # Customer, product, wishlist, cart, and order routes
 ├── utils/                  # JWT creation
 ├── index.js                # Express app and MongoDB connection
 ├── client/                 # Vite + React application
 │   └── src/
 │       ├── components/     # Navbar, product/cart cards, and route guards
 │       ├── context/        # Shared cart state
-│       ├── pages/          # Login, register, home, products, details, wishlist, cart
+│       ├── pages/          # Store, checkout, order history, and account pages
 │       └── services/       # Axios API client and request helpers
 ├── scripts/seed-products.js # Optional sample product seeder
 ├── .env.example            # API environment template
@@ -57,6 +62,15 @@ cp .env.example .env
 ```
 
 Set `MONGO_URI` in `.env` to your MongoDB connection string and replace `JWT_SECRET` with a long, private random value.
+
+For checkout, add your Razorpay **Test Mode** credentials to the backend `.env`:
+
+```env
+RAZORPAY_KEY_ID=rzp_test_your_key_id
+RAZORPAY_KEY_SECRET=your_test_mode_key_secret
+```
+
+The API only accepts a key ID beginning with `rzp_test_`. The key secret must remain in the backend `.env`; it is never sent to the browser. The public test Key ID is returned to React only when starting Razorpay Checkout. Node's built-in `fetch` calls Razorpay's Orders API, so no Razorpay npm SDK is required.
 
 Start the API from the repository root:
 
@@ -99,6 +113,8 @@ The script inserts a sample product only when a product with the same name does 
 | `JWT_EXPIRES_IN` | JWT lifetime (optional; defaults to `7d`) | `7d` |
 | `NODE_ENV` | Runtime mode; enables secure cookies in production | `development` |
 | `CLIENT_URL` | Allowed browser origin for credentialed CORS | `http://localhost:5173` |
+| `RAZORPAY_KEY_ID` | Razorpay Test Mode public key ID (`rzp_test_...`) | Set from the Test Mode dashboard |
+| `RAZORPAY_KEY_SECRET` | Razorpay Test Mode secret; backend only | Set from the Test Mode dashboard |
 
 ### Client (`client/.env`)
 
@@ -188,6 +204,20 @@ Adding the same product again increments its quantity instead of creating anothe
 
 The frontend `CartContext` loads the cart once for the protected application and shares it with product cards, the Navbar, and the Cart page. The Navbar count is the total quantity of all cart items. Subtotal is derived as the sum of each current product price multiplied by its quantity; neither value is stored separately in MongoDB.
 
+### Order and payment endpoints
+
+All order endpoints are protected and identify the customer from the JWT cookie. Checkout sends only shipping details; the backend reloads the authenticated customer's cart, obtains current product prices and stock, snapshots item details, and calculates the INR total itself. Razorpay receives the amount in paise. The backend verifies Razorpay's HMAC signature before marking the order `PAID` / `PLACED` and emptying the separate Cart document. The Razorpay Key Secret is never exposed to React.
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `POST` | `/orders/create-payment-order` | Validate shipping/cart/stock, persist a pending order snapshot, and create a Razorpay Test Mode Order |
+| `POST` | `/orders/verify-payment` | Verify the signature, mark the order paid/placed, and clear the customer's cart |
+| `GET` | `/orders` | List only the authenticated customer's orders, newest first |
+| `GET` | `/orders/:id` | Fetch one order only if it belongs to the authenticated customer |
+| `PATCH` | `/orders/:id/status` | Development-only bonus: advance an owned order one step through CONFIRMED, SHIPPED, and DELIVERED |
+
+The checkout UI is at `/checkout`, confirmation/details at `/order-success/:id` and `/orders/:id`, and history at `/orders`. Test Mode credentials are required for payment creation; use Razorpay's test checkout and never Live Mode credentials for this lab.
+
 ## Frontend routes
 
 | Route | Page | Access |
@@ -199,6 +229,10 @@ The frontend `CartContext` loads the cart once for the protected application and
 | `/products/:id` | Product details | Signed-in customers |
 | `/wishlist` | Saved products | Signed-in customers |
 | `/cart` | Cart quantities and order summary | Signed-in customers |
+| `/checkout` | Shipping details, order review, and Razorpay Test Mode checkout | Signed-in customers |
+| `/order-success/:id` | Payment confirmation and order details | Signed-in customers; order owner only |
+| `/orders` | Order history | Signed-in customers |
+| `/orders/:id` | One order's snapshot and shipping details | Signed-in customers; order owner only |
 
 Product cards can toggle wishlist status and add products to the cart without a page refresh. Wishlist and cart changes are reflected across the app through backend responses and shared cart state. Catalogue, wishlist, and cart pages display loading, error, and empty states.
 
