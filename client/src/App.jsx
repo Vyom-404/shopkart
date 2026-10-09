@@ -8,6 +8,7 @@ import ProductDetails from './pages/ProductDetails';
 import GuestRoute from './components/GuestRoute';
 import Wishlist from './pages/Wishlist';
 import Cart from './pages/Cart';
+import Profile from './pages/Profile';
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
         <Route path="/products/:id" element={<ProductDetails />} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/profile" element={<Profile />} />
       </Route>
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
