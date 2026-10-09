@@ -48,7 +48,7 @@ export default function Products() {
   }, [search, category]);
 
   return <div className="home-page"><Navbar customer={customer} /><main className="collection-page">
-    <header className="collection-heading"><div><p className="eyebrow">SHOPKART / THE COLLECTION</p><h1>Find your<br /><em>favourite.</em></h1></div><p>Good design for everyday living, selected with care.</p></header>
+    <header className="collection-heading"><div><p className="eyebrow">AROVA / THE COLLECTION</p><h1>Find your<br /><em>favourite.</em></h1></div><p>Good design for everyday living, selected with care.</p></header>
     <section className="collection-tools" aria-label="Find products"><SearchBar search={search} category={category} onSearchChange={setSearch} onCategoryChange={setCategory} /><span className="collection-count">{loading ? 'Loading collection…' : `${products.length} ${products.length === 1 ? 'product' : 'products'}`}</span></section>
     <section className="collection-results" aria-label="Product results">
       {loading ? <p className="state-message" role="status">Loading products...</p>

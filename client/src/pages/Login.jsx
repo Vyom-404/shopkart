@@ -23,11 +23,11 @@ export default function Login() {
     catch (err) {
       setError(err.response?.status === 401
         ? 'Invalid credentials. Please check your email and password.'
-        : (err.response?.data?.message || 'Cannot reach the ShopKart API. Start the backend server and try again.'));
+        : (err.response?.data?.message || 'Cannot reach Arova right now. Start the backend server and try again.'));
     }
     finally { setLoading(false); }
   }
-  return <AuthShell title="Welcome back." intro="Sign in to pick up where you left off." alternate={{ text: 'New to ShopKart?', to: '/register', link: 'Create an account' }}>
+  return <AuthShell title="Welcome back." intro="Sign in to pick up where you left off." alternate={{ text: 'New to Arova?', to: '/register', link: 'Create an account' }}>
     <form className="form" onSubmit={submit} noValidate>
       {error && <div className="form-error" role="alert">{error}</div>}
       <label>Email address<input name="email" type="email" value={form.email} onChange={update} placeholder="you@example.com" autoComplete="email" /></label>

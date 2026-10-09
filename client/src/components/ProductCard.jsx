@@ -37,7 +37,7 @@ export default function ProductCard({ product, isWishlisted = false, onWishlistA
     <article className="product-card">
       <div className="product-card-media">
         <Link className="product-image-link" to={`/products/${product._id}`} aria-label={`View ${product.name}`}>
-          <img className="product-image" src={product.image} alt={product.name} />
+          <img className="product-image" src={product.image} alt={product.name} width="800" height="900" loading="lazy" decoding="async" />
           <span className="image-view-mark" aria-hidden="true">↗</span>
         </Link>
         <button className={`wishlist-action${saved ? ' is-saved' : ''}`} type="button" onClick={handleToggleWishlist} disabled={wishlistSaving} aria-label={wishlistSaving ? 'Saving to wishlist' : saved ? 'Remove from wishlist' : 'Add to wishlist'} aria-pressed={saved} title={saved ? 'Remove from wishlist' : 'Add to wishlist'}>

@@ -15,7 +15,7 @@ export default function Register() {
     setLoading(true);
     try { await api.post('/customers/register', { ...form, fullName: form.fullName.trim(), email: form.email.trim().toLowerCase(), phone: form.phone.trim() }); navigate('/login', { replace: true, state: { registered: true } }); }
     catch (err) {
-      setError(err.response?.data?.message || 'Cannot reach the ShopKart API. Start the backend server and try again.');
+      setError(err.response?.data?.message || 'Cannot reach Arova right now. Start the backend server and try again.');
     }
     finally { setLoading(false); }
   }

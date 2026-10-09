@@ -29,14 +29,14 @@ export default function Home() {
   const heroProduct = products[0];
   return <div className="home-page"><Navbar /><main className="store-home">
     <section className="home-hero">
-      <div className="home-hero-copy"><p className="eyebrow">THE SHOPKART EDIT <span> / 01</span></p><h1>For the life<br />you <em>love living.</em></h1><p>Discover thoughtfully chosen pieces that make everyday feel a little more extraordinary.</p><Link className="dark-button" to="/products">Discover the collection <span>↗</span></Link><div className="hero-footnote"><span>01 — 05</span><span>OBJECTS FOR EVERYDAY LIVING</span></div></div>
+      <div className="home-hero-copy"><p className="eyebrow">THE AROVA EDIT <span> / 01</span></p><h1>For the life<br />you <em>love living.</em></h1><p>Discover thoughtfully chosen pieces that make everyday feel a little more extraordinary.</p><Link className="dark-button" to="/products">Discover the collection <span>↗</span></Link><div className="hero-footnote"><span>01 — 05</span><span>OBJECTS FOR EVERYDAY LIVING</span></div></div>
       <div className="home-hero-visual">
-        {heroProduct ? <Link to={`/products/${heroProduct._id}`} aria-label={`Discover ${heroProduct.name}`}><img src={heroProduct.image} alt={heroProduct.name} /><span className="hero-product-note"><small>THE EDIT / 01</small><strong>{heroProduct.name}</strong><span>₹{Number(heroProduct.price).toLocaleString('en-IN')} <b aria-hidden="true">↗</b></span></span></Link> : <div className="hero-image-placeholder"><span>OBJECTS<br />WITH INTENTION</span></div>}
-        <span className="hero-side-note">SHOPKART — EST. 2024</span>
+        {heroProduct ? <Link to={`/products/${heroProduct._id}`} aria-label={`Discover ${heroProduct.name}`}><img src={heroProduct.image} alt={heroProduct.name} width="1200" height="1080" fetchPriority="high" decoding="async" /><span className="hero-product-note"><small>THE EDIT / 01</small><strong>{heroProduct.name}</strong><span>₹{Number(heroProduct.price).toLocaleString('en-IN')} <b aria-hidden="true">↗</b></span></span></Link> : <div className="hero-image-placeholder"><span>OBJECTS<br />WITH INTENTION</span></div>}
+        <span className="hero-side-note">AROVA — EST. 2024</span>
       </div>
       <a className="hero-scroll" href="#featured">SCROLL TO DISCOVER <span>↓</span></a>
     </section>
-    <section className="home-values" aria-label="ShopKart values"><p>THE ART OF EVERYDAY</p><span>Thoughtful design</span><i>✳</i><span>Made to be lived with</span><i>✳</i><span>Chosen with care</span></section>
+    <section className="home-values" aria-label="Arova values"><p>THE ART OF EVERYDAY</p><span>Thoughtful design</span><i>✳</i><span>Made to be lived with</span><i>✳</i><span>Chosen with care</span></section>
     <section className="featured-section" id="featured">
       <div className="section-title-row"><div><p className="eyebrow">A FEW GOOD THINGS</p><h2>Selected for you<span>.</span></h2></div><Link className="text-link" to="/products">View all pieces <span>↗</span></Link></div>
       {loading ? <p className="state-message" role="status">Curating your edit…</p> : products.length === 0 ? <div className="home-empty"><p>The collection is being prepared.</p><Link to="/products">Explore the catalogue ↗</Link></div> : <div className="product-grid home-featured-grid">{products.slice(0, 4).map(product => <ProductCard key={product._id} product={product} isWishlisted={wishlistIds.includes(product._id)} onWishlistAdded={markWishlisted} />)}</div>}

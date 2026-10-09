@@ -72,7 +72,7 @@ export default function ProductDetails() {
     {loading ? <p className="state-message" role="status">Loading product...</p>
       : error ? <p className="state-message form-error" role="alert">Something went wrong while loading products.</p>
         : product ? <article className="product-detail">
-          <div className="product-detail-gallery"><img src={product.image} alt={product.name} /><span className="gallery-index">SHOPKART / OBJECTS FOR EVERYDAY</span></div>
+          <div className="product-detail-gallery"><img src={product.image} alt={product.name} width="1200" height="1296" decoding="async" /><span className="gallery-index">AROVA / OBJECTS FOR EVERYDAY</span></div>
           <section className="product-detail-info"><p className="product-category">{product.category}</p><p className="detail-reference">OBJECT NO. {product._id.slice(-5).toUpperCase()}</p><h1 className="page-title">{product.name}</h1>
             <p className="detail-description">{product.description}</p><div className="detail-price-row"><strong className="product-price detail-price">{formatPrice(product.price)}</strong><p className={`stock-status${product.stock < 1 ? ' sold-out' : ''}`}><i />{product.stock > 0 ? `${product.stock} available` : 'Currently unavailable'}</p></div>
             <div className="detail-divider" />

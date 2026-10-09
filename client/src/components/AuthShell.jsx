@@ -4,7 +4,7 @@ export default function AuthShell({ children, title, intro, alternate }) {
   return (
     <main className="auth-page">
       <section className="auth-aside">
-        <Link className="brand light-brand" to="/login"><span className="brand-mark">S</span>shopkart</Link>
+        <Link className="brand light-brand" to="/login"><span className="brand-mark">A</span>arova</Link>
         <div className="aside-copy">
           <p className="eyebrow">THE GOOD THINGS, CLOSER</p>
           <h1>Everyday finds,<br /><em>beautifully</em> chosen.</h1>
@@ -15,7 +15,7 @@ export default function AuthShell({ children, title, intro, alternate }) {
       </section>
       <section className="auth-panel">
         <div className="auth-card">
-          <p className="eyebrow dark">SHOPKART ACCOUNT</p>
+          <p className="eyebrow dark">AROVA ACCOUNT</p>
           <h2>{title}</h2>
           <p className="intro">{intro}</p>
           {children}
