@@ -48,8 +48,14 @@ export default function Products() {
   }, [search, category]);
 
   return <div className="home-page"><Navbar customer={customer} /><main className="products-content">
-    <p className="eyebrow dark">SHOPKART COLLECTION</p><h1 className="page-title">Find your next favorite.</h1>
-    <SearchBar search={search} category={category} onSearchChange={setSearch} onCategoryChange={setCategory} />
+    <section className="catalogue-hero">
+      <div className="catalogue-copy"><p className="eyebrow dark">THE SHOPKART EDIT <span>—</span> NO. 01</p><h1 className="page-title">Objects with<br /><em>a point of view.</em></h1><p>Everyday pieces, thoughtfully picked. Find something useful, beautiful, or both.</p></div>
+      <div className="catalogue-stamp" aria-hidden="true"><span>GOOD DESIGN<br />GOOD DAYS</span><strong>✳</strong><small>CURATED<br />FOR YOU</small></div>
+    </section>
+    <section className="catalogue-controls" aria-label="Find products">
+      <SearchBar search={search} category={category} onSearchChange={setSearch} onCategoryChange={setCategory} />
+      <div className="catalogue-results"><span className="result-dot" />{loading ? 'Finding your edit…' : `${products.length} ${products.length === 1 ? 'piece' : 'pieces'} to explore`}</div>
+    </section>
     {loading ? <p className="state-message" role="status">Loading products...</p>
       : error ? <p className="state-message form-error" role="alert">Something went wrong while loading products.</p>
         : products.length === 0 ? <p className="state-message">No products found.</p>

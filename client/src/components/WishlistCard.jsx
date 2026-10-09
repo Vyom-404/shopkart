@@ -14,7 +14,7 @@ export default function WishlistCard({ product, removing, onRemove }) {
         <strong className="product-price">{formatPrice(product.price)}</strong>
         <p className="stock-status">{product.stock > 0 ? `${product.stock} units left` : 'Out of stock'}</p>
         <Link className="product-link" to={`/products/${product._id}`}>View Details <span aria-hidden="true">→</span></Link>
-        <button className="wishlist-action remove-wishlist" type="button" onClick={() => onRemove(product._id)} disabled={removing}>
+        <button className="wishlist-remove-action" type="button" onClick={() => onRemove(product._id)} disabled={removing}>
           {removing ? 'Removing...' : 'Remove from Wishlist'}
         </button>
       </div>

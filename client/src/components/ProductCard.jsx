@@ -35,27 +35,29 @@ export default function ProductCard({ product, isWishlisted = false, onWishlistA
 
   return (
     <article className="product-card">
-      <Link className="product-image-link" to={`/products/${product._id}`} aria-label={`View ${product.name}`}>
-        <img className="product-image" src={product.image} alt={product.name} />
-      </Link>
-      <div className="product-card-content">
-        <p className="product-category">{product.category}</p>
-        <h2>{product.name}</h2>
-        <strong className="product-price">{formatPrice(product.price)}</strong>
-        <p className="stock-status">{product.stock > 0 ? `${product.stock} units left` : 'Out of stock'}</p>
-        <Link className="product-link" to={`/products/${product._id}`}>View Details <span aria-hidden="true">→</span></Link>
-        <button className="wishlist-action" type="button" onClick={handleToggleWishlist} disabled={wishlistSaving}>
-          {wishlistSaving ? 'Saving...' : saved ? '♥ Remove from Wishlist' : '♡ Add to Wishlist'}
+      <div className="product-card-media">
+        <Link className="product-image-link" to={`/products/${product._id}`} aria-label={`View ${product.name}`}>
+          <img className="product-image" src={product.image} alt={product.name} />
+          <span className="image-view-mark" aria-hidden="true">↗</span>
+        </Link>
+        <button className={`wishlist-action${saved ? ' is-saved' : ''}`} type="button" onClick={handleToggleWishlist} disabled={wishlistSaving} aria-label={wishlistSaving ? 'Saving to wishlist' : saved ? 'Remove from wishlist' : 'Add to wishlist'} aria-pressed={saved} title={saved ? 'Remove from wishlist' : 'Add to wishlist'}>
+          {wishlistSaving ? <span className="heart-saving">···</span> : saved ? '♥' : '♡'}
         </button>
-        {wishlistError && <p className="wishlist-action-error" role="alert">{wishlistError}</p>}
+        <span className="media-category">{product.category}</span>
+      </div>
+      <div className="product-card-content">
+        <div className="product-title-row"><h2>{product.name}</h2><span className="product-index" aria-hidden="true">✳</span></div>
+        <div className="product-price-row"><strong className="product-price">{formatPrice(product.price)}</strong><span className={`stock-status${product.stock < 1 ? ' sold-out' : ''}`}><i />{product.stock > 0 ? `${product.stock} in stock` : 'Sold out'}</span></div>
+        <Link className="product-link" to={`/products/${product._id}`}>Explore piece <span aria-hidden="true">↗</span></Link>
         <button className="cart-action" type="button" disabled={adding || stockLimitReached} onClick={async () => {
           setCartActionError('');
           try { await addToCart(product._id); }
           catch (error) { setCartActionError(error.response?.data?.message || 'Unable to add product to cart. Please try again.'); }
         }}>
-          {adding ? 'Adding...' : stockLimitReached ? (product.stock < 1 ? 'Out of Stock' : 'Stock Limit Reached') : inCart ? 'Add Another' : 'Add to Cart'}
+          {adding ? 'Adding to your cart…' : stockLimitReached ? (product.stock < 1 ? 'Currently unavailable' : 'Stock limit reached') : inCart ? `Add another · ${cartQuantity} in cart` : 'Add to cart'}
+          <span aria-hidden="true">{adding ? '…' : '↗'}</span>
         </button>
-        {cartActionError && <p className="wishlist-action-error" role="alert">{cartActionError}</p>}
+        {(wishlistError || cartActionError) && <p className="wishlist-action-error" role="alert">{wishlistError || cartActionError}</p>}
       </div>
     </article>
   );
