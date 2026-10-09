@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 export default function Home() {
   return <div className="home-page"><Navbar /><main className="home-content shop-home-content">
     <section className="welcome shop-hero">
-      <div className="shop-hero-copy"><p className="eyebrow">THE SHOPKART EDIT <span>—</span> EVERYDAY, REIMAGINED</p><h1>Find your next<br /><em>everyday favourite.</em></h1><p>Thoughtful finds for the little rituals, big plans, and everything in between.</p><Link className="dark-button" to="/products">Shop the collection <span>→</span></Link></div>
-      <div className="hero-art" aria-hidden="true"><span className="art-label">GOOD THINGS<br />LIVE HERE</span><span className="arch" /><span className="sun" /><span className="leaf leaf-a">✦</span><span className="leaf leaf-b">✦</span><span className="vase" /></div>
+      <div className="shop-hero-copy"><p className="eyebrow">SHOPKART / CURATED GOODS</p><h1>Everyday,<br /><em>considered.</em></h1><p>Well-made pieces for your home, your work, and the rituals in between.</p><Link className="dark-button" to="/products">Explore the collection <span>↗</span></Link></div>
+      <div className="hero-art" aria-hidden="true"><span className="art-label">A STUDY IN<br />GOOD LIVING</span><span className="arch" /><span className="sun" /><span className="leaf leaf-a">✳</span><span className="leaf leaf-b">✳</span><span className="vase" /></div>
     </section>
     <section className="shop-highlights" aria-label="ShopKart highlights">
       <div><span>01</span><strong>Considered finds</strong><p>Useful pieces with a little extra thought.</p></div>

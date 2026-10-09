@@ -24,9 +24,9 @@ export default function Navbar() {
 
   return (
     <>
-      <div className="announcement-bar"><span className="announcement-mark">✳</span> Good things, made for everyday <span className="announcement-divider">/</span> Free delivery on orders over ₹1,999</div>
+      <div className="announcement-bar"><span>COMPLIMENTARY DELIVERY</span><span className="announcement-divider">—</span><span>ON ORDERS OVER ₹1,999</span></div>
       <header className="navbar">
-        <Link className="brand" to="/home"><span className="brand-mark">s</span><span>shopkart<span className="brand-period">.</span></span></Link>
+        <Link className="brand" to="/home"><span className="brand-mark">S</span><span>shopkart<span className="brand-period">.</span></span></Link>
         <nav className="nav-links" aria-label="Main navigation">
           <NavLink to="/home" end className={({ isActive }) => `nav-products${isActive ? ' active' : ''}`}>Shop</NavLink>
           <NavLink to="/products" className={({ isActive }) => `nav-products${isActive ? ' active' : ''}`}>Discover</NavLink>
