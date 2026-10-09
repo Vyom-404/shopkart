@@ -28,3 +28,8 @@ export const removeFromWishlist = async (productId) => {
   notifyWishlistChanged();
   return response;
 };
+
+export const getCart = () => api.get('/cart');
+export const addToCart = (productId) => api.post(`/cart/${productId}`);
+export const updateCartQuantity = (productId, quantity) => api.patch(`/cart/${productId}`, { quantity });
+export const removeFromCart = (productId) => api.delete(`/cart/${productId}`);
