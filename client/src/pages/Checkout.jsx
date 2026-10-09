@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate, useOutletContext } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useOutletContext } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useCart } from '../context/CartContext';
 import { createPaymentOrder, verifyPayment } from '../services/api';
@@ -37,6 +37,8 @@ function loadRazorpayScript() {
 export default function Checkout() {
   const { customer } = useOutletContext();
   const navigate = useNavigate();
+  const location = useLocation();
+  const buyNow = location.state?.buyNow || null;
   const { cartItems, cartLoading, cartError, totalItems, subtotal, refreshCart, clearCart } = useCart();
   const [shippingAddress, setShippingAddress] = useState(() => initialAddress(customer));
   const [errors, setErrors] = useState({});
@@ -80,7 +82,7 @@ export default function Checkout() {
         return;
       }
 
-      const { data } = await createPaymentOrder(shippingAddress);
+      const { data } = await createPaymentOrder(shippingAddress, buyNow);
       setCheckoutReview({ items: data.items, totalAmount: data.totalAmount });
       let paymentResponseReceived = false;
       const options = {
@@ -91,7 +93,7 @@ export default function Checkout() {
         description: 'Arova Order',
         order_id: data.razorpayOrderId,
         prefill: { name: shippingAddress.fullName, contact: shippingAddress.phone },
-        theme: { color: '#bd4d3b' },
+        theme: { color: '#247362' },
         handler: async response => {
           paymentResponseReceived = true;
           setVerifyingPayment(true);
@@ -103,7 +105,7 @@ export default function Checkout() {
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature
             });
-            clearCart();
+            if (!buyNow) clearCart();
             navigate(`/order-success/${data.shopKartOrderId}`, { replace: true });
           } catch (error) {
             setPaymentError(error.response?.data?.message || 'We could not verify the payment yet. Your cart has been kept. Please try again.');
@@ -125,18 +127,18 @@ export default function Checkout() {
       });
       paymentObject.open();
     } catch (error) {
-      setPaymentError(error.response?.data?.message || 'Unable to start checkout. Your cart has not been changed.');
+      setPaymentError(error.response?.data?.message || 'Unable to start checkout. Your items have not been changed.');
     } finally {
       setPlacingOrder(false);
     }
   }
 
   return <div className="home-page"><Navbar /><main className="checkout-page checkout-page-layout">
-    <Link className="back-link" to="/cart">← Return to shopping bag</Link>
+    <Link className="back-link" to={buyNow ? `/products/${buyNow.productId}` : '/cart'}>← {buyNow ? 'Return to product' : 'Return to shopping bag'}</Link>
     <header className="checkout-heading"><div><p className="eyebrow">A FEW FINAL DETAILS</p><h1 className="page-title">Checkout<span>.</span></h1></div><div className="checkout-progress" aria-label="Checkout steps"><span className="current"><i>01</i> Delivery</span><span><i>02</i> Review</span><span><i>03</i> Payment</span></div></header>
-    {cartLoading ? <p className="state-message" role="status">Loading your cart...</p>
-      : cartError ? <section className="cart-state-error" role="alert"><p>Unable to load your cart.</p><button className="dark-button" type="button" onClick={refreshCart}>Try Again <span>↻</span></button></section>
-        : cartItems.length === 0 ? <section className="cart-empty"><div aria-hidden="true" className="empty-mark">01</div><h2>Your cart is empty</h2><p>Add something you love before checking out.</p><Link className="dark-button" to="/products">Browse Products <span>→</span></Link></section>
+    {(!buyNow && cartLoading) ? <p className="state-message" role="status">Loading your cart...</p>
+      : (!buyNow && cartError) ? <section className="cart-state-error" role="alert"><p>Unable to load your cart.</p><button className="dark-button" type="button" onClick={refreshCart}>Try Again <span>↻</span></button></section>
+        : (!buyNow && cartItems.length === 0) ? <section className="cart-empty"><div aria-hidden="true" className="empty-mark">01</div><h2>Your cart is empty</h2><p>Add something you love before checking out.</p><Link className="dark-button" to="/products">Browse Products <span>→</span></Link></section>
           : <form className="checkout-layout" onSubmit={handlePlaceOrder} noValidate>
             <section className="shipping-panel">
               <p className="eyebrow dark">DELIVERY DETAILS</p><h2>Where should we send it?</h2>
@@ -151,13 +153,13 @@ export default function Checkout() {
             </section>
             <aside className="checkout-summary">
               <p className="eyebrow dark">YOUR ORDER</p><h2>Order summary</h2>
-              <div className="checkout-summary-items">{(checkoutReview?.items || cartItems.map(item => ({ ...item, name: item.product.name, image: item.product.image, price: item.product.price }))).map(item => <div className="checkout-summary-item" key={item.product._id || item.product}>
+              <div className="checkout-summary-items">{(checkoutReview?.items || (buyNow ? [{ product: buyNow.productId, ...buyNow.preview, quantity: buyNow.quantity }] : cartItems.map(item => ({ ...item, name: item.product.name, image: item.product.image, price: item.product.price })))).map(item => <div className="checkout-summary-item" key={item.product._id || item.product}>
                 <img src={item.image} alt="" />
                 <div><strong>{item.name}</strong><small>Qty {item.quantity} × {formatPrice(item.price)}</small></div>
                 <strong>{formatPrice(item.price * item.quantity)}</strong>
               </div>)}</div>
-              <div className="summary-row"><span>Items</span><span>{totalItems}</span></div>
-              <div className="summary-row summary-total"><strong>Total</strong><strong>{formatPrice(checkoutReview?.totalAmount ?? subtotal)}</strong></div>
+              <div className="summary-row"><span>Items</span><span>{checkoutReview ? checkoutReview.items.reduce((sum, item) => sum + item.quantity, 0) : buyNow ? buyNow.quantity : totalItems}</span></div>
+              <div className="summary-row summary-total"><strong>Total</strong><strong>{formatPrice(checkoutReview?.totalAmount ?? (buyNow ? buyNow.preview.price * buyNow.quantity : subtotal))}</strong></div>
               {paymentError && <p className="checkout-error" role="alert">{paymentError}</p>}
               <button className="dark-button checkout-button" type="submit" disabled={placingOrder || verifyingPayment}>
                 {verifyingPayment ? 'Verifying payment…' : placingOrder ? 'Preparing secure checkout…' : 'Place Order'} <span aria-hidden="true">→</span>

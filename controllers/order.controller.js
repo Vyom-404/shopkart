@@ -41,17 +41,34 @@ const createPaymentOrder = async (req, res) => {
 
   let shopKartOrder;
   try {
-    const cart = await Cart.findOne({ customer: req.user._id }).populate({
-      path: 'items.product',
-      select: 'name price image stock'
-    });
-    if (!cart || cart.items.length === 0) {
-      return res.status(400).json({ success: false, message: 'Your cart is empty' });
+    const buyNow = req.body?.buyNow;
+    let source = 'CART';
+    let sourceItems;
+    if (buyNow !== undefined) {
+      if (!buyNow || typeof buyNow !== 'object' || Array.isArray(buyNow) || !mongoose.isValidObjectId(buyNow.productId) || !Number.isInteger(buyNow.quantity) || buyNow.quantity < 1) {
+        return res.status(400).json({ success: false, message: 'A valid product and quantity are required' });
+      }
+      const product = await Product.findById(buyNow.productId).select('name price image stock');
+      if (!product) return res.status(404).json({ success: false, message: 'This product is no longer available' });
+      if (buyNow.quantity > product.stock) {
+        return res.status(400).json({ success: false, message: `Only ${product.stock} units of ${product.name} are available.` });
+      }
+      source = 'BUY_NOW';
+      sourceItems = [{ product, quantity: buyNow.quantity }];
+    } else {
+      const cart = await Cart.findOne({ customer: req.user._id }).populate({
+        path: 'items.product',
+        select: 'name price image stock'
+      });
+      if (!cart || cart.items.length === 0) {
+        return res.status(400).json({ success: false, message: 'Your cart is empty' });
+      }
+      sourceItems = cart.items;
     }
 
     const orderItems = [];
     let totalPaise = 0;
-    for (const cartItem of cart.items) {
+    for (const cartItem of sourceItems) {
       const product = cartItem.product;
       if (!product) {
         return res.status(400).json({ success: false, message: 'A product in your cart is no longer available' });
@@ -86,6 +103,7 @@ const createPaymentOrder = async (req, res) => {
       items: orderItems,
       shippingAddress: address,
       totalAmount: totalPaise / 100,
+      source,
       paymentStatus: 'PENDING',
       status: 'PENDING_PAYMENT'
     });
@@ -160,9 +178,11 @@ const verifyPayment = async (req, res) => {
     order.razorpayPaymentId = razorpay_payment_id;
     await order.save();
 
-    const updatedCart = await Cart.updateOne({ customer: req.user._id }, { $set: { items: [] } });
-    if (updatedCart.matchedCount === 0) {
-      await Cart.create({ customer: req.user._id, items: [] });
+    if (order.source !== 'BUY_NOW') {
+      const updatedCart = await Cart.updateOne({ customer: req.user._id }, { $set: { items: [] } });
+      if (updatedCart.matchedCount === 0) {
+        await Cart.create({ customer: req.user._id, items: [] });
+      }
     }
     return res.json({ success: true, message: 'Payment verified and order placed', order });
   } catch (error) {

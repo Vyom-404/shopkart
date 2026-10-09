@@ -35,6 +35,7 @@ const orderSchema = new mongoose.Schema({
   },
   shippingAddress: { type: shippingAddressSchema, required: true },
   totalAmount: { type: Number, required: true, min: 0 },
+  source: { type: String, enum: ['CART', 'BUY_NOW'], default: 'CART' },
   paymentStatus: {
     type: String,
     enum: ['PENDING', 'PAID', 'FAILED'],

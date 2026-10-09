@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useOutletContext, useParams } from 'react-router-dom';
+import { Link, useNavigate, useOutletContext, useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { getProduct, getWishlist, toggleWishlist } from '../services/api';
 import { useCart } from '../context/CartContext';
@@ -8,6 +8,7 @@ const formatPrice = (price) => `₹${Number(price).toLocaleString('en-IN')}`;
 
 export default function ProductDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { customer } = useOutletContext();
   const { addToCart, cartItems, isProductPending } = useCart();
   const [product, setProduct] = useState(null);
@@ -17,6 +18,7 @@ export default function ProductDetails() {
   const [saved, setSaved] = useState(false);
   const [wishlistSaving, setWishlistSaving] = useState(false);
   const [wishlistError, setWishlistError] = useState('');
+  const [buyNowQuantity, setBuyNowQuantity] = useState(1);
 
   useEffect(() => {
     let active = true;
@@ -27,6 +29,8 @@ export default function ProductDetails() {
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [id]);
+
+  useEffect(() => setBuyNowQuantity(1), [id]);
 
   useEffect(() => {
     let active = true;
@@ -67,6 +71,15 @@ export default function ProductDetails() {
     }
   }
 
+  function handleBuyNow() {
+    if (!product || !Number.isInteger(buyNowQuantity) || buyNowQuantity < 1 || buyNowQuantity > product.stock) return;
+    navigate('/checkout', { state: { buyNow: {
+      productId: product._id,
+      quantity: buyNowQuantity,
+      preview: { name: product.name, image: product.image, price: product.price }
+    } } });
+  }
+
   return <div className="home-page"><Navbar customer={customer} /><main className="product-detail-page">
     <div className="detail-breadcrumb"><Link className="back-link" to="/products">Shop all pieces</Link><span>/</span><span>Details</span></div>
     {loading ? <p className="state-message" role="status">Loading product...</p>
@@ -76,8 +89,15 @@ export default function ProductDetails() {
           <section className="product-detail-info"><p className="product-category">{product.category}</p><p className="detail-reference">OBJECT NO. {product._id.slice(-5).toUpperCase()}</p><h1 className="page-title">{product.name}</h1>
             <p className="detail-description">{product.description}</p><div className="detail-price-row"><strong className="product-price detail-price">{formatPrice(product.price)}</strong><p className={`stock-status${product.stock < 1 ? ' sold-out' : ''}`}><i />{product.stock > 0 ? `${product.stock} available` : 'Currently unavailable'}</p></div>
             <div className="detail-divider" />
+            <label className="buy-now-quantity">BUY NOW QUANTITY
+              <input type="number" min="1" max={product.stock} step="1" value={buyNowQuantity} disabled={product.stock < 1} onChange={event => {
+                const value = Number(event.target.value);
+                setBuyNowQuantity(Number.isInteger(value) ? Math.min(Math.max(1, value), product.stock || 1) : 1);
+              }} aria-label={`Quantity to buy for ${product.name}`} />
+            </label>
             <div className="detail-actions">
               <button className="dark-button detail-cart-button" type="button" disabled={adding || stockLimitReached} onClick={handleAddToCart}>{adding ? 'Adding...' : stockLimitReached ? (product.stock <= 0 ? 'Out of Stock' : 'Stock Limit Reached') : inCart ? `Add Another · ${cartQuantity} in cart` : 'Add to Cart'} <span>→</span></button>
+              <button className="dark-button buy-now-button" type="button" disabled={product.stock < 1} onClick={handleBuyNow}>Buy Now <span>→</span></button>
               <button className={`detail-wishlist-button${saved ? ' is-saved' : ''}`} type="button" onClick={handleToggleWishlist} disabled={wishlistSaving} aria-label={saved ? 'Remove from wishlist' : 'Add to wishlist'} aria-pressed={saved}>{wishlistSaving ? 'Saving…' : <><span aria-hidden="true">{saved ? '♥' : '♡'}</span> {saved ? 'Saved to Wishlist' : 'Add to Wishlist'}</>}</button>
             </div>
             {cartActionError && <p className="form-error" role="alert">{cartActionError}</p>}
