@@ -42,7 +42,7 @@ export default function ProductCard({ product, isWishlisted = false, onWishlistA
           <span className="image-view-mark" aria-hidden="true">↗</span>
         </Link>
         <button className={`wishlist-action${saved ? ' is-saved' : ''}`} type="button" onClick={handleToggleWishlist} disabled={wishlistSaving} aria-label={wishlistSaving ? 'Saving to wishlist' : saved ? 'Remove from wishlist' : 'Add to wishlist'} aria-pressed={saved} title={saved ? 'Remove from wishlist' : 'Add to wishlist'}>
-          {wishlistSaving ? <span className="heart-saving">···</span> : <BrandMark className="wishlist-brand-icon" decorative />}
+          {wishlistSaving ? <span className="heart-saving">···</span> : saved ? '♥' : '♡'}
         </button>
         <span className="media-category">{product.category}</span>
       </div>
