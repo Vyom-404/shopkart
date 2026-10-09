@@ -28,14 +28,14 @@ export default function Navbar() {
       <header className="navbar">
         <Link className="brand" to="/home"><span className="brand-mark">S</span><span>shopkart<span className="brand-period">.</span></span></Link>
         <nav className="nav-links" aria-label="Main navigation">
-          <NavLink to="/home" end className={({ isActive }) => `nav-products${isActive ? ' active' : ''}`}>Shop</NavLink>
-          <NavLink to="/products" className={({ isActive }) => `nav-products${isActive ? ' active' : ''}`}>Discover</NavLink>
-          <NavLink to="/wishlist" className={({ isActive }) => `nav-products${isActive ? ' active' : ''}`} aria-label={`Wishlist, ${wishlistCount} ${wishlistCount === 1 ? 'product' : 'products'}`}><span>Wishlist</span><span className="nav-count">{wishlistCount}</span></NavLink>
-          <NavLink to="/cart" className={({ isActive }) => `nav-products nav-cart${isActive ? ' active' : ''}`}><span>Cart</span><span className="nav-count">{totalItems}</span></NavLink>
+          <NavLink to="/home" end className={({ isActive }) => `nav-products${isActive ? ' active' : ''}`}>Home</NavLink>
+          <NavLink to="/products" className={({ isActive }) => `nav-products${isActive ? ' active' : ''}`}>Collection</NavLink>
           <NavLink to="/orders" className={({ isActive }) => `nav-products${isActive ? ' active' : ''}`}>Orders</NavLink>
         </nav>
         <div className="nav-right">
-          <NavLink to="/profile" className={({ isActive }) => `profile-nav${isActive ? ' active' : ''}`}><span className="profile-nav-icon" aria-hidden="true">♙</span><span>Profile</span></NavLink>
+          <NavLink to="/wishlist" className={({ isActive }) => `nav-action${isActive ? ' active' : ''}`} aria-label={`Wishlist, ${wishlistCount} ${wishlistCount === 1 ? 'product' : 'products'}`} title="Wishlist"><span className="nav-action-icon" aria-hidden="true">♡</span><span className="nav-count">{wishlistCount}</span></NavLink>
+          <NavLink to="/cart" className={({ isActive }) => `nav-action${isActive ? ' active' : ''}`} aria-label={`Cart, ${totalItems} ${totalItems === 1 ? 'item' : 'items'}`} title="Cart"><span className="nav-action-icon nav-bag-icon" aria-hidden="true">▱</span><span className="nav-count">{totalItems}</span></NavLink>
+          <NavLink to="/profile" className={({ isActive }) => `profile-nav${isActive ? ' active' : ''}`} aria-label="Profile" title="Profile"><span className="profile-nav-icon" aria-hidden="true">S</span></NavLink>
         </div>
       </header>
     </>

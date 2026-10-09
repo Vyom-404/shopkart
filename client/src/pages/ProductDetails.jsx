@@ -67,22 +67,23 @@ export default function ProductDetails() {
     }
   }
 
-  return <div className="home-page"><Navbar customer={customer} /><main className="products-content">
-    <Link className="back-link" to="/products">← Back to products</Link>
+  return <div className="home-page"><Navbar customer={customer} /><main className="product-detail-page">
+    <div className="detail-breadcrumb"><Link className="back-link" to="/products">Shop all pieces</Link><span>/</span><span>Details</span></div>
     {loading ? <p className="state-message" role="status">Loading product...</p>
       : error ? <p className="state-message form-error" role="alert">Something went wrong while loading products.</p>
         : product ? <article className="product-detail">
-          <img src={product.image} alt={product.name} />
-          <div><p className="product-category">{product.category}</p><h1 className="page-title">{product.name}</h1>
-            <p className="detail-description">{product.description}</p><strong className="product-price detail-price">{formatPrice(product.price)}</strong>
-            <p className="stock-status">{product.stock > 0 ? `${product.stock} units left` : 'Out of stock'}</p>
+          <div className="product-detail-gallery"><img src={product.image} alt={product.name} /><span className="gallery-index">SHOPKART / OBJECTS FOR EVERYDAY</span></div>
+          <section className="product-detail-info"><p className="product-category">{product.category}</p><p className="detail-reference">OBJECT NO. {product._id.slice(-5).toUpperCase()}</p><h1 className="page-title">{product.name}</h1>
+            <p className="detail-description">{product.description}</p><div className="detail-price-row"><strong className="product-price detail-price">{formatPrice(product.price)}</strong><p className={`stock-status${product.stock < 1 ? ' sold-out' : ''}`}><i />{product.stock > 0 ? `${product.stock} available` : 'Currently unavailable'}</p></div>
+            <div className="detail-divider" />
             <div className="detail-actions">
               <button className="dark-button detail-cart-button" type="button" disabled={adding || stockLimitReached} onClick={handleAddToCart}>{adding ? 'Adding...' : stockLimitReached ? (product.stock <= 0 ? 'Out of Stock' : 'Stock Limit Reached') : inCart ? `Add Another · ${cartQuantity} in cart` : 'Add to Cart'} <span>→</span></button>
               <button className={`detail-wishlist-button${saved ? ' is-saved' : ''}`} type="button" onClick={handleToggleWishlist} disabled={wishlistSaving} aria-label={saved ? 'Remove from wishlist' : 'Add to wishlist'} aria-pressed={saved}>{wishlistSaving ? 'Saving…' : <><span aria-hidden="true">{saved ? '♥' : '♡'}</span> {saved ? 'Saved to Wishlist' : 'Add to Wishlist'}</>}</button>
             </div>
             {cartActionError && <p className="form-error" role="alert">{cartActionError}</p>}
             {wishlistError && <p className="form-error" role="alert">{wishlistError}</p>}
-          </div>
+            <div className="detail-assurance"><span>PRODUCT DETAILS</span><span>LIVE STOCK</span><span>ORDER HISTORY</span></div>
+          </section>
         </article> : <p className="state-message">Product not found.</p>}
   </main></div>;
 }

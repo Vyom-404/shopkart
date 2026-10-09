@@ -1,17 +1,47 @@
+import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import { Link } from 'react-router-dom';
+import ProductCard from '../components/ProductCard';
+import { getProducts, getWishlist } from '../services/api';
 
 export default function Home() {
-  return <div className="home-page"><Navbar /><main className="home-content shop-home-content">
-    <section className="welcome shop-hero">
-      <div className="shop-hero-copy"><p className="eyebrow">SHOPKART / CURATED GOODS</p><h1>Everyday,<br /><em>considered.</em></h1><p>Well-made pieces for your home, your work, and the rituals in between.</p><Link className="dark-button" to="/products">Explore the collection <span>↗</span></Link></div>
-      <div className="hero-art" aria-hidden="true"><span className="art-label">A STUDY IN<br />GOOD LIVING</span><span className="arch" /><span className="sun" /><span className="leaf leaf-a">✳</span><span className="leaf leaf-b">✳</span><span className="vase" /></div>
+  const [products, setProducts] = useState([]);
+  const [wishlistIds, setWishlistIds] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    Promise.allSettled([getProducts(), getWishlist()]).then(([productResult, wishlistResult]) => {
+      if (!active) return;
+      if (productResult.status === 'fulfilled') setProducts(productResult.value.data.products.slice(0, 5));
+      if (wishlistResult.status === 'fulfilled') setWishlistIds(wishlistResult.value.data.wishlist.map(product => product._id));
+      setLoading(false);
+    });
+    return () => { active = false; };
+  }, []);
+
+  function markWishlisted(productId, saved) {
+    setWishlistIds(current => saved
+      ? (current.includes(productId) ? current : [...current, productId])
+      : current.filter(id => id !== productId));
+  }
+
+  const heroProduct = products[0];
+  return <div className="home-page"><Navbar /><main className="store-home">
+    <section className="home-hero">
+      <div className="home-hero-copy"><p className="eyebrow">THE SHOPKART EDIT <span> / 01</span></p><h1>For the life<br />you <em>love living.</em></h1><p>Discover thoughtfully chosen pieces that make everyday feel a little more extraordinary.</p><Link className="dark-button" to="/products">Discover the collection <span>↗</span></Link><div className="hero-footnote"><span>01 — 05</span><span>OBJECTS FOR EVERYDAY LIVING</span></div></div>
+      <div className="home-hero-visual">
+        {heroProduct ? <Link to={`/products/${heroProduct._id}`} aria-label={`Discover ${heroProduct.name}`}><img src={heroProduct.image} alt={heroProduct.name} /><span className="hero-product-note"><small>THE EDIT / 01</small><strong>{heroProduct.name}</strong><span>₹{Number(heroProduct.price).toLocaleString('en-IN')} <b aria-hidden="true">↗</b></span></span></Link> : <div className="hero-image-placeholder"><span>OBJECTS<br />WITH INTENTION</span></div>}
+        <span className="hero-side-note">SHOPKART — EST. 2024</span>
+      </div>
+      <a className="hero-scroll" href="#featured">SCROLL TO DISCOVER <span>↓</span></a>
     </section>
-    <section className="shop-highlights" aria-label="ShopKart highlights">
-      <div><span>01</span><strong>Considered finds</strong><p>Useful pieces with a little extra thought.</p></div>
-      <div><span>02</span><strong>Made for every day</strong><p>Good design that fits into real life.</p></div>
-      <div><span>03</span><strong>A better kind of browse</strong><p>Take your time and find what feels right.</p></div>
+    <section className="home-values" aria-label="ShopKart values"><p>THE ART OF EVERYDAY</p><span>Thoughtful design</span><i>✳</i><span>Made to be lived with</span><i>✳</i><span>Chosen with care</span></section>
+    <section className="featured-section" id="featured">
+      <div className="section-title-row"><div><p className="eyebrow">A FEW GOOD THINGS</p><h2>Selected for you<span>.</span></h2></div><Link className="text-link" to="/products">View all pieces <span>↗</span></Link></div>
+      {loading ? <p className="state-message" role="status">Curating your edit…</p> : products.length === 0 ? <div className="home-empty"><p>The collection is being prepared.</p><Link to="/products">Explore the catalogue ↗</Link></div> : <div className="product-grid home-featured-grid">{products.slice(0, 4).map(product => <ProductCard key={product._id} product={product} isWishlisted={wishlistIds.includes(product._id)} onWishlistAdded={markWishlisted} />)}</div>}
+      <div className="featured-bottom"><span>AN EVER-CHANGING COLLECTION</span><Link to="/products">Explore the complete collection <span>↗</span></Link></div>
     </section>
-    <section className="home-shop-cta"><div><p className="eyebrow dark">A GOOD PLACE TO START</p><h2>Something lovely<br /><em>is just around the corner.</em></h2></div><Link className="outline-button" to="/products">Explore all products <span>↗</span></Link></section>
+    <section className="home-note"><p className="eyebrow">A NOTE ON GOOD DESIGN</p><h2>Objects that earn<br />their place in your life.</h2><Link className="outline-button" to="/products">Find your next favourite <span>↗</span></Link></section>
   </main></div>;
 }
