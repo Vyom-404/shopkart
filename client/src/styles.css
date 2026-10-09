@@ -146,8 +146,8 @@ img { display: block; max-width: 100%; }
 .image-view-mark { position: absolute; right: 12px; bottom: 12px; display: grid; width: 36px; height: 36px; place-items: center; border-radius: 50%; background: var(--surface); color: var(--green); font-size: 19px; opacity: 0; transform: translateY(4px); transition: opacity .2s, transform .2s; }
 .product-card:hover .image-view-mark { opacity: 1; transform: none; }
 .wishlist-action { position: absolute; z-index: 2; top: 12px; right: 12px; display: grid; width: 40px; height: 40px; place-items: center; border: 1px solid #deded3; border-radius: 50%; background: #fbfaf6ed; color: var(--green); font: 400 23px var(--sans); transition: background .2s, color .2s, transform .2s; }
-.wishlist-action:hover { transform: scale(1.07); background: white; }
-.wishlist-action.is-saved { border-color: var(--terracotta); background: var(--terracotta); color: white; }
+.wishlist-action:hover { transform: scale(1.07); }
+.wishlist-action.is-saved { border-color: #deded3; background: #fbfaf6ed; color: var(--terracotta); }
 .wishlist-action:disabled { cursor: wait; opacity: .65; }
 .heart-saving { font: 600 12px var(--mono); }
 .wishlist-action { font-size: 23px; }
@@ -200,8 +200,9 @@ img { display: block; max-width: 100%; }
 .product-detail .buy-now-button { flex: 1 1 140px; border-color: var(--terracotta); background: var(--terracotta); }
 .product-detail .buy-now-button:hover { border-color: #9c4d32; background: #9c4d32; }
 .detail-wishlist-button { display: inline-flex; flex: 1 1 165px; align-items: center; border: 1px solid #d4cec1; background: transparent; color: var(--green); transition: border .2s, background .2s; }
-.detail-wishlist-button > span { color: var(--terracotta); font: 400 20px/1 var(--sans); }
-.detail-wishlist-button:hover, .detail-wishlist-button.is-saved { border-color: #d7c1a7; background: #f0e6d9; }
+.detail-wishlist-button > span { color: var(--green); font: 400 20px/1 var(--sans); transition: color .18s; }
+.detail-wishlist-button:hover > span, .detail-wishlist-button.is-saved > span { color: var(--terracotta); }
+.detail-wishlist-button:hover, .detail-wishlist-button.is-saved { border-color: #d4cec1; background: transparent; }
 .detail-wishlist-button:disabled { cursor: wait; opacity: .65; }
 .detail-assurance { display: flex; flex-wrap: wrap; gap: 10px 17px; margin-top: 25px; color: var(--muted); font: 600 11px var(--sans); letter-spacing: .04em; }
 .product-detail-info .form-error { margin-top: 12px; }
