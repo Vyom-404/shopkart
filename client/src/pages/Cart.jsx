@@ -34,7 +34,7 @@ export default function Cart() {
               <h2>Summary</h2>
               <div className="summary-row"><span>Items</span><span>{totalItems}</span></div>
               <div className="summary-row summary-total"><strong>Subtotal</strong><strong>{formatPrice(subtotal)}</strong></div>
-              <button className="dark-button checkout-button" type="button" disabled>Proceed to Checkout <span>→</span></button>
+              <Link className="dark-button checkout-button" to="/checkout">Proceed to Checkout <span>→</span></Link>
             </aside>
           </div>}
   </main></div>;

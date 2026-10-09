@@ -54,6 +54,13 @@ export function CartProvider({ children }) {
   const removeFromCart = useCallback((productId) =>
     runMutation(productId, () => removeFromCartRequest(productId)), [runMutation]);
 
+  const clearCart = useCallback(() => {
+    cartRevision.current += 1;
+    setCartItems([]);
+    setCartError(false);
+    setCartLoading(false);
+  }, []);
+
   const totalItems = useMemo(
     () => cartItems.reduce((total, item) => total + item.quantity, 0),
     [cartItems]
@@ -73,6 +80,7 @@ export function CartProvider({ children }) {
     addToCart,
     updateQuantity,
     removeFromCart,
+    clearCart,
     refreshCart,
     isProductPending: (productId) => pendingProductIds.includes(productId)
   };

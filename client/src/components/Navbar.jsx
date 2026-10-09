@@ -32,6 +32,7 @@ export default function Navbar() {
           <NavLink to="/products" className={({ isActive }) => `nav-products${isActive ? ' active' : ''}`}>Discover</NavLink>
           <NavLink to="/wishlist" className={({ isActive }) => `nav-products${isActive ? ' active' : ''}`} aria-label={`Wishlist, ${wishlistCount} ${wishlistCount === 1 ? 'product' : 'products'}`}><span>Wishlist</span><span className="nav-count">{wishlistCount}</span></NavLink>
           <NavLink to="/cart" className={({ isActive }) => `nav-products nav-cart${isActive ? ' active' : ''}`}><span>Cart</span><span className="nav-count">{totalItems}</span></NavLink>
+          <NavLink to="/orders" className={({ isActive }) => `nav-products${isActive ? ' active' : ''}`}>Orders</NavLink>
         </nav>
         <div className="nav-right">
           <NavLink to="/profile" className={({ isActive }) => `profile-nav${isActive ? ' active' : ''}`}><span className="profile-nav-icon" aria-hidden="true">♙</span><span>Profile</span></NavLink>
